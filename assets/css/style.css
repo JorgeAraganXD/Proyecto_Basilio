@@ -1,0 +1,63 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.card {
+    transition: transform 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-body i {
+    margin-bottom: 1rem;
+}
+
+.btn {
+    border-radius: 20px;
+    padding: 8px 20px;
+}
+
+.table th {
+    background-color: #f8f9fa;
+}
+
+.dashboard-stats {
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.form-control {
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.alert {
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+/* Colores personalizados para estados de membresía */
+.status-active {
+    color: #28a745;
+}
+
+.status-expired {
+    color: #dc3545;
+}
+
+.status-pending {
+    color: #ffc107;
+}
