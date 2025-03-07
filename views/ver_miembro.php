@@ -115,10 +115,7 @@ $membresia = $tiene_membresia_activa ? $resultado_membresia->fetch_assoc() : nul
                             <a href="editar_miembro.php?id=<?php echo $id; ?>" class="btn btn-warning">
                                 <i class="fas fa-edit"></i> Editar Información
                             </a>
-                            <a href="#" class="btn btn-success" <?php echo !$tiene_membresia_activa ? '' : 'disabled'; ?> 
-                               onclick="<?php echo !$tiene_membresia_activa ? 'window.location.href=\'membresias.php?miembro_id=' . $id . '\'' : 'alert(\'El miembro ya tiene una membresía activa\')'; ?>">
-                                <i class="fas fa-plus-circle"></i> Nueva Membresía
-                            </a>
+                            
                         </div>
                     </div>
                 </div>

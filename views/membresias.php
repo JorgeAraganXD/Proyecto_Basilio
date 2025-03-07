@@ -213,9 +213,7 @@ $resultado = $conn->query($sql);
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <?php if ($row['estado'] == 'activa'): ?>
-                                            <a href="registrar_pago.php?membresia_id=<?php echo $row['id']; ?>" class="btn btn-sm btn-success">
-                                                <i class="fas fa-money-bill"></i>
-                                            </a>
+                                            
                                             <?php endif; ?>
                                         </td>
                                     </tr>

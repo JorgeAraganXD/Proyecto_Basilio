@@ -165,9 +165,7 @@ $resultado_pagos = $conn->query($sql_pagos);
                     <div class="card-body">
                         <?php if ($membresia['estado'] == 'activa'): ?>
                         <div class="mb-3">
-                            <a href="registrar_pago.php?membresia_id=<?php echo $id; ?>" class="btn btn-success">
-                                <i class="fas fa-plus-circle"></i> Registrar Nuevo Pago
-                            </a>
+                            
                         </div>
                         <?php endif; ?>
 
