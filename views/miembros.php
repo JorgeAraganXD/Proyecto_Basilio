@@ -181,9 +181,7 @@ $resultado = $conn->query($sql);
                                             <a href="editar_miembro.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-warning">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="ver_membresia.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-info">
-                                                <i class="fas fa-id-card"></i>
-                                            </a>
+                                            
                                         </td>
                                     </tr>
                                     <?php endwhile; ?>
