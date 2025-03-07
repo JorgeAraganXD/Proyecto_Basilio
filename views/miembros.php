@@ -61,7 +61,7 @@ $resultado = $conn->query($sql);
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link active" href="miembros.php">
-                            <i class="fas fa-users"></i> MiembrosA
+                            <i class="fas fa-users"></i> Miembros
                         </a>
                     </li>
                     <li class="nav-item">
