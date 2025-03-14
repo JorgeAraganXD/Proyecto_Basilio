@@ -2,7 +2,7 @@
 session_start();
 require_once '../config/database.php';
 
-// Obtener membresías activas para el select
+// Obtener membresías activas para el datalist
 $sql_membresias = "SELECT m.id, m.tipo, CONCAT(mi.nombre, ' ', mi.apellidos) as nombre_completo 
                    FROM membresias m 
                    JOIN miembros mi ON m.miembro_id = mi.id 
@@ -23,10 +23,10 @@ $resultado = $conn->query($sql);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pagos - Supremo Gym</title>
+    <title>Gestión de Pagos - Supremo Gym</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="../assets/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/styles.css">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -74,10 +74,20 @@ $resultado = $conn->query($sql);
             </div>
         <?php endif; ?>
 
-        <div class="card">
-            <div class="card-header bg-success text-white">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-money-bill"></i> Nuevo Pago
+        <div class="row">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>
+                        <i class="fas fa-dollar-sign"></i> Gestión de Pagos
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-plus-circle"></i> Nuevo Pago
                 </h5>
             </div>
             <div class="card-body">
@@ -85,36 +95,47 @@ $resultado = $conn->query($sql);
                     <input type="hidden" name="action" value="crear">
                     <div class="row">
                         <div class="col-md-4 mb-3">
-                            <label for="membresia_id" class="form-label">Membresía</label>
-                            <select class="form-select" id="membresia_id" name="membresia_id" required onchange="actualizarMonto()">
-                                <option value="">Seleccione una membresía</option>
-                                <?php while ($row = $resultado_membresias->fetch_assoc()): 
+                            <label for="searchMembresia" class="form-label">Buscar Membresía</label>
+                            <input class="form-control" list="membresiaOptions" id="searchMembresia" 
+                                   placeholder="Escribe para buscar una membresía..." required>
+                            <datalist id="membresiaOptions">
+                                <?php 
+                                $membresias_list = array();
+                                while ($row = $resultado_membresias->fetch_assoc()): 
                                     $tipo_texto = [
                                         'dia' => 'Por Día',
                                         'semanal' => 'Semanal',
                                         'mensual' => 'Mensual'
                                     ][$row['tipo']];
+                                    $display_text = $row['nombre_completo'] . ' - ' . $tipo_texto;
+                                    $membresias_list[] = array(
+                                        'id' => $row['id'],
+                                        'texto' => $display_text,
+                                        'tipo' => $row['tipo']
+                                    );
+                                    echo "<option value='" . htmlspecialchars($display_text) . "'>";
+                                endwhile; 
                                 ?>
-                                <option value="<?php echo $row['id']; ?>" data-tipo="<?php echo $row['tipo']; ?>">
-                                    <?php echo $row['nombre_completo'] . ' - ' . $tipo_texto; ?>
-                                </option>
-                                <?php endwhile; ?>
-                            </select>
+                            </datalist>
+                            <input type="hidden" name="membresia_id" id="membresia_id" required>
                         </div>
+
                         <div class="col-md-4 mb-3">
                             <label for="monto" class="form-label">Monto</label>
                             <input type="number" step="0.01" class="form-control" id="monto" name="monto" readonly required>
                         </div>
+
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Método de Pago</label>
                             <input type="text" class="form-control" value="Efectivo" readonly>
                             <input type="hidden" name="metodo_pago" value="efectivo">
                         </div>
                     </div>
+
                     <div class="row">
                         <div class="col-12">
                             <button type="submit" class="btn btn-success">
-                                <i class="fas fa-money-bill"></i> Registrar Pago
+                                <i class="fas fa-save"></i> Registrar Pago
                             </button>
                         </div>
                     </div>
@@ -122,10 +143,10 @@ $resultado = $conn->query($sql);
             </div>
         </div>
 
-        <div class="card mt-4">
+        <div class="card">
             <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-list"></i> Historial de Pagos
+                <h5 class="mb-0">
+                    <i class="fas fa-history"></i> Historial de Pagos
                 </h5>
             </div>
             <div class="card-body">
@@ -137,7 +158,7 @@ $resultado = $conn->query($sql);
                                 <th>Miembro</th>
                                 <th>Tipo Membresía</th>
                                 <th>Monto</th>
-                                <th>Método</th>
+                                <th>Método de Pago</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -166,24 +187,37 @@ $resultado = $conn->query($sql);
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        function actualizarMonto() {
-            const select = document.getElementById('membresia_id');
-            const option = select.options[select.selectedIndex];
-            const tipo = option ? option.getAttribute('data-tipo') : '';
-            
-            const precios = {
-                'dia': 80,
-                'semanal': 120,
-                'mensual': 250
-            };
-
-            document.getElementById('monto').value = tipo ? precios[tipo] : '';
-        }
+        // Convertir el array PHP de membresías a JavaScript
+        const membresiasList = <?php echo json_encode($membresias_list); ?>;
+        
+        // Función para actualizar el ID de membresía y monto cuando se selecciona una
+        document.getElementById('searchMembresia').addEventListener('input', function(e) {
+            const selectedMembresia = membresiasList.find(m => m.texto === this.value);
+            if (selectedMembresia) {
+                document.getElementById('membresia_id').value = selectedMembresia.id;
+                
+                const precios = {
+                    'dia': 80,
+                    'semanal': 120,
+                    'mensual': 250
+                };
+                
+                document.getElementById('monto').value = precios[selectedMembresia.tipo];
+            } else {
+                document.getElementById('membresia_id').value = '';
+                document.getElementById('monto').value = '';
+            }
+        });
 
         // Procesar el formulario
         document.getElementById('nuevoPago').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            if (!this.checkValidity()) {
+                e.stopPropagation();
+                return;
+            }
+
             const formData = new FormData(this);
             
             fetch('procesar_pago.php', {
@@ -193,14 +227,15 @@ $resultado = $conn->query($sql);
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    location.reload();
+
+                    window.location.reload();
                 } else {
-                    alert('Error al procesar el pago: ' + data.message);
+                    alert('Error al registrar el pago: ' + data.error);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error al procesar el pago');
+                alert('Error al procesar la solicitud');
             });
         });
     </script>

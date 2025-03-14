@@ -24,8 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
     }
 }
 
-// Obtener lista de miembros para el select
-$sql_miembros = "SELECT id, nombre, apellidos FROM miembros ORDER BY nombre";
+// Obtener lista de miembros para el datalist
+$sql_miembros = "SELECT id, nombre, apellidos, email FROM miembros ORDER BY nombre";
 $resultado_miembros = $conn->query($sql_miembros);
 
 // Obtener lista de membresías
@@ -104,26 +104,35 @@ $resultado = $conn->query($sql);
                         <form method="POST" action="">
                             <input type="hidden" name="action" value="crear">
                             <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label for="miembro_id" class="form-label">Miembro</label>
-                                    <select class="form-select" id="miembro_id" name="miembro_id" required>
-                                        <option value="">Seleccione un miembro</option>
-                                        <?php while($miembro = $resultado_miembros->fetch_assoc()): ?>
-                                            <option value="<?php echo $miembro['id']; ?>">
-                                                <?php echo $miembro['nombre'] . ' ' . $miembro['apellidos']; ?>
-                                            </option>
-                                        <?php endwhile; ?>
-                                    </select>
+                                <div class="col-md-6">
+                                    <label for="searchMember" class="form-label">Buscar Miembro</label>
+                                    <input class="form-control" list="memberOptions" id="searchMember" 
+                                           placeholder="Escribe para buscar un miembro..." required>
+                                    <datalist id="memberOptions">
+                                        <?php 
+                                        $miembros_list = array();
+                                        while($miembro = $resultado_miembros->fetch_assoc()): 
+                                            $display_text = $miembro['nombre'] . ' ' . $miembro['apellidos'] . ' - ' . $miembro['email'];
+                                            $miembros_list[] = array(
+                                                'id' => $miembro['id'],
+                                                'texto' => $display_text
+                                            );
+                                            echo "<option value='" . htmlspecialchars($display_text) . "'>";
+                                        endwhile; 
+                                        ?>
+                                    </datalist>
+                                    <input type="hidden" name="miembro_id" id="miembro_id" required>
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label for="tipo" class="form-label">Tipo de Membresía</label>
                                     <select class="form-select" id="tipo" name="tipo" onchange="actualizarPrecio()" required>
+                                        <option value="">Seleccione un tipo</option>
                                         <option value="dia">Por Día ($80)</option>
                                         <option value="semanal">Semanal ($120)</option>
                                         <option value="mensual">Mensual ($250)</option>
                                     </select>
                                 </div>
-                                <div class="col-md-4 mb-3">
+                                <div class="col-md-2 mb-3">
                                     <label for="precio" class="form-label">Precio</label>
                                     <input type="number" step="0.01" class="form-control" id="precio" name="precio" value="80" readonly required>
                                 </div>
@@ -136,13 +145,6 @@ $resultado = $conn->query($sql);
                                 <div class="col-md-6 mb-3">
                                     <label for="fecha_fin" class="form-label">Fecha de Fin</label>
                                     <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" required>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label for="metodo_pago" class="form-label">Método de Pago</label>
-                                    <input type="text" class="form-control" value="Efectivo" readonly>
-                                    <input type="hidden" name="metodo_pago" value="efectivo">
                                 </div>
                             </div>
                             <div class="row">
@@ -212,9 +214,6 @@ $resultado = $conn->query($sql);
                                             <a href="editar_membresia.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-warning">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <?php if ($row['estado'] == 'activa'): ?>
-                                            
-                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                     <?php endwhile; ?>
@@ -229,8 +228,20 @@ $resultado = $conn->query($sql);
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="../assets/js/main.js"></script>
     <script>
+        // Convertir el array PHP de miembros a JavaScript
+        const miembrosList = <?php echo json_encode($miembros_list); ?>;
+        
+        // Función para actualizar el ID del miembro cuando se selecciona uno
+        document.getElementById('searchMember').addEventListener('input', function(e) {
+            const selectedMember = miembrosList.find(m => m.texto === this.value);
+            if (selectedMember) {
+                document.getElementById('miembro_id').value = selectedMember.id;
+            } else {
+                document.getElementById('miembro_id').value = '';
+            }
+        });
+
         function actualizarPrecio() {
             const tipo = document.getElementById('tipo').value;
             const precios = {
@@ -238,7 +249,7 @@ $resultado = $conn->query($sql);
                 'semanal': 120,
                 'mensual': 250
             };
-            document.getElementById('precio').value = precios[tipo];
+            document.getElementById('precio').value = precios[tipo] || '';
         }
 
         // Inicializar datepicker y manejar cambios de fecha
